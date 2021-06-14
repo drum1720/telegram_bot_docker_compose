@@ -28,7 +28,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=17201720
+      - POSTGRES_PASSWORD=
       - POSTGRES_USER=drum
       - POSTGRES_DB=rifmaapi
     ports:
