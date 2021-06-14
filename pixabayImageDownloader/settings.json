@@ -1,0 +1,7 @@
+{
+  "bot_token": "",
+  "bot_api": "https://api.telegram.org/bot",
+  "pixabay_api_key": "",
+  "pixabay_params": "&page=1&per_page=150&lang=ru",
+  "server_port": ":8020"
+}
