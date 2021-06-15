@@ -53,15 +53,17 @@ func GetRifma(w http.ResponseWriter, r *http.Request) {
 		replyMessage := ReplyMessage{ChatId: taskRifma.ChatId,
 			Text: rifma.Rifma}
 		replyMessage.reply()
+		fmt.Println("я прочитал из бд")
 		return
 	}
 
-	result:=parseRifma(textSearch)
+	result := parseRifma(textSearch)
 
 	rifma.Rifma = result
 	replyMessage := ReplyMessage{ChatId: taskRifma.ChatId,
 		Text: result}
 	replyMessage.reply()
+	fmt.Println("я спарсил")
 
 	if rifma.Rifma != "" {
 		rifma.AddToTable(db)

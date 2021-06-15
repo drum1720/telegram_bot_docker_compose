@@ -1,7 +1,7 @@
 {
   "bot_token": "",
   "bot_api": "https://api.telegram.org/bot",
-  "pixabay_image_downloader_url": "http://192.168.0.149:8020/api/getPhoto",
-  "image_handler_resize_url": "http://192.168.0.149:8021/api/resize",
-  "rifma_search_url": "http://192.168.0.149:8022/api/getrifma"
+  "pixabay_image_downloader_url": "http://image-downloader:8020/api/getPhoto",
+  "image_handler_resize_url": "http://image-handler:8021/api/resize",
+  "rifma_search_url": "http://rifma-search:8022/api/getrifma"
 }
