@@ -4,7 +4,7 @@
   "server_port": ":8022",
   "pg_host": "db",
   "pg_port": "5432",
-  "pg_user": "drum",
+  "pg_user": "",
   "pg_pass": "",
   "pg_db_name": "rifmaapi"
 }
