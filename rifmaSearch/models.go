@@ -40,7 +40,7 @@ func (reply ReplyMessage) reply() {
 	}
 	_, err = http.Post(settings.BotUrl+"/sendMessage", "application/json", bytes.NewBuffer(buf))
 	if err != nil {
-		fmt.Println(err, "не удалось отправить сообщение")
+		fmt.Println(err, "message not send")
 	}
 }
 

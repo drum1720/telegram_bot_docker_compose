@@ -81,6 +81,14 @@ func workDirector(restResponse Update, botUrl string) {
 			Text:   restResponse.Message.Text,
 			BotUrl: botUrl}
 		task.sendTask()
+	case "тор":
+		replyMessage.Text = "Привет " + restResponse.Message.Chat.FirstName + "! " + "Идем, я покажу тебе тёмные закаулки интернета"
+		replyMessage.reply()
+		task := TaskTorSearch{
+			ChatId: restResponse.Message.Chat.ChatId,
+			Text:   restResponse.Message.Text,
+			BotUrl: botUrl}
+		task.sendTask()
 	case "help":
 		replyMessage.Text = "напишите: 'photo + пробел + текст для поиска фото' для того чтобы получить рандомную фотографию по запросу "
 		replyMessage.reply()
@@ -89,6 +97,8 @@ func workDirector(restResponse Update, botUrl string) {
 			"второй параметр необязательный"
 		replyMessage.reply()
 		replyMessage.Text = "напишите: 'рифма + пробел + слово для поиска рифмы' чтобы получить все возможные рифмы к слову"
+		replyMessage.reply()
+		replyMessage.Text = "напишите: 'тор + пробел + текст для поиска торрент ссылок' чтобы получить 10 самых популярных результатов поиска"
 		replyMessage.reply()
 	default:
 		replyMessage.Text = restResponse.Message.Chat.FirstName + ", " + "чет я не пойму, ты быканул(а) сейчас?"

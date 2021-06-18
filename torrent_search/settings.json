@@ -1,0 +1,6 @@
+{
+  "bot_token": "",
+  "bot_api": "https://api.telegram.org/bot",
+  "server_port": ":8025",
+  "tor_search_url": "https://gw1.torlook.info/"
+}
