@@ -3,18 +3,25 @@ volumes:
   postgres_data:
 services:
   telegramm-bot-listener:
+    restart: always
     build: ./TelegramBotListener/
     depends_on:
       - rifma-search
       - image-downloader
       - image-handler
   rifma-search:
+    restart: always
     build: ./rifmaSearch/
     depends_on:
       - db
+  tor-search:
+    restart: always
+    build: ./torrent_search/
   image-downloader:
+    restart: always
     build: ./pixabayImageDownloader/
   image-handler:
+    restart: always
     build: ./imageHandler/
   db:
     restart: always

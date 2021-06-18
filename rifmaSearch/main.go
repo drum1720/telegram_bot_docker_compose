@@ -22,13 +22,13 @@ func main() {
 func GetRifma(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println("полученный запрос не читается", err)
+		fmt.Println("body read all err", err)
 		return
 	}
 	var taskRifma TaskRifma
 	err = json.Unmarshal(body, &taskRifma)
 	if err != nil {
-		fmt.Println("Унмаршал Бэд", err)
+		fmt.Println("Unmarshal BAD", err)
 		return
 	}
 	textSearch := TrimTextSearch(taskRifma.Text, taskRifma.ChatId)
@@ -53,7 +53,7 @@ func GetRifma(w http.ResponseWriter, r *http.Request) {
 		replyMessage := ReplyMessage{ChatId: taskRifma.ChatId,
 			Text: rifma.Rifma}
 		replyMessage.reply()
-		fmt.Println("я прочитал из бд")
+		fmt.Println("db search")
 		return
 	}
 
@@ -63,7 +63,7 @@ func GetRifma(w http.ResponseWriter, r *http.Request) {
 	replyMessage := ReplyMessage{ChatId: taskRifma.ChatId,
 		Text: result}
 	replyMessage.reply()
-	fmt.Println("я спарсил")
+	fmt.Println("i parse")
 
 	if rifma.Rifma != "" {
 		rifma.AddToTable(db)
@@ -74,7 +74,7 @@ func GetRifma(w http.ResponseWriter, r *http.Request) {
 func parseRifma(textSearch string) string {
 	req, err := http.Get("https://rifmus.net/rifma/" + textSearch)
 	if err != nil {
-		fmt.Println("данные не загружены", err)
+		fmt.Println("http err", err)
 		return ""
 	}
 	defer req.Body.Close()

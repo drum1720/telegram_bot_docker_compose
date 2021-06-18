@@ -11,6 +11,7 @@ type Settings struct {
 	PixabayImageDownloaderUrl string `json:"pixabay_image_downloader_url"`
 	ImageHandlerResizeUrl     string `json:"image_handler_resize_url"`
 	RifmaSearchUrl            string `json:"rifma_search_url"`
+	TorrentSearchUrl          string `json:"torrent_search_url"`
 	BotToken                  string `json:"bot_token"`
 	BotApi                    string `json:"bot_api"`
 	BotUrl                    string
