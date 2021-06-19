@@ -72,15 +72,13 @@ func parseRifma(textSearch string) string {
 			nameIurl := strings.Split(resultTrim[i], "\">")
 			url := nameIurl[0]
 			url = strings.ReplaceAll(url, "href=\"", "")
+			url = strings.TrimSpace(url)
 			name := nameIurl[1]
 			name = strings.ReplaceAll(name, "<b>", "")
 			name = strings.ReplaceAll(name, "</b>", "")
 			name = strings.ReplaceAll(name, "<div class=\"h2", "")
 			name = strings.ReplaceAll(name, "</a></p>", "")
 			name = strings.TrimSpace(name)
-
-			torTrackerName := "Rutracker"
-
 			span := strings.Split(resultTrim[i], "span")
 			size := span[2]
 			size = strings.ReplaceAll(size, "class=\"size\">", "")
@@ -91,7 +89,7 @@ func parseRifma(textSearch string) string {
 			seed = strings.ReplaceAll(seed, "</", "")
 
 			torSearchResult := TorSearchResult{
-				TorTrackerName: torTrackerName,
+				TorTrackerName: "Rutracker",
 				Name:           name,
 				Url:            url,
 				Size:           size,

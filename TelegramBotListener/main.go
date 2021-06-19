@@ -46,16 +46,12 @@ func workDirector(restResponse Update, botUrl string) {
 	message := strings.Split(text, " ")
 	switch message[0] {
 	case "photo":
-		replyMessage.Text = "Привет " + restResponse.Message.Chat.FirstName + "! " + "Уже бегу искать фоточку"
-		replyMessage.reply()
 		task := TaskPhotoDownloader{
 			ChatId: restResponse.Message.Chat.ChatId,
 			Text:   restResponse.Message.Text,
 			BotUrl: botUrl}
 		task.sendTask()
 	case "resize":
-		replyMessage.Text = "Привет " + restResponse.Message.Chat.FirstName + "! " + "Сейчас сделаем)"
-		replyMessage.reply()
 		if restResponse.Message.Photos == nil {
 			restResponse.Message.Photos = append(restResponse.Message.Photos, Photo{FileId: restResponse.Message.Document.FileId})
 		}
@@ -74,31 +70,24 @@ func workDirector(restResponse Update, botUrl string) {
 		}
 		task.sendTask()
 	case "рифма":
-		replyMessage.Text = "Привет " + restResponse.Message.Chat.FirstName + "! " + "Я всё устрою, не пройдет и пары лет. Иди готовь омлет)"
-		replyMessage.reply()
 		task := TaskRifma{
 			ChatId: restResponse.Message.Chat.ChatId,
 			Text:   restResponse.Message.Text,
 			BotUrl: botUrl}
 		task.sendTask()
 	case "тор":
-		replyMessage.Text = "Привет " + restResponse.Message.Chat.FirstName + "! " + "Идем, я покажу тебе тёмные закаулки интернета"
-		replyMessage.reply()
 		task := TaskTorSearch{
 			ChatId: restResponse.Message.Chat.ChatId,
 			Text:   restResponse.Message.Text,
 			BotUrl: botUrl}
 		task.sendTask()
 	case "help":
-		replyMessage.Text = "напишите: 'photo + пробел + текст для поиска фото' для того чтобы получить рандомную фотографию по запросу "
-		replyMessage.reply()
-		replyMessage.Text = "чтобы уменьшить изображение, прикрепите его к сообщению, " +
+		replyMessage.Text = "напишите: 'photo + пробел + текст для поиска фото' для того чтобы получить рандомную фотографию по запросу " +
+			"\n" + "чтобы уменьшить изображение, прикрепите его к сообщению, " +
 			"само сообщение должно быть: 'resize + пробел + 1000 + 88', где первый параметр - размер по большей стороне, второй - степень сжатия(от 1 до 100), " +
-			"второй параметр необязательный"
-		replyMessage.reply()
-		replyMessage.Text = "напишите: 'рифма + пробел + слово для поиска рифмы' чтобы получить все возможные рифмы к слову"
-		replyMessage.reply()
-		replyMessage.Text = "напишите: 'тор + пробел + текст для поиска торрент ссылок' чтобы получить 10 самых популярных результатов поиска"
+			"второй параметр необязательный" +
+			"\n" + "напишите: 'рифма + пробел + слово для поиска рифмы' чтобы получить все возможные рифмы к слову" +
+			"\n" + "напишите: 'тор + пробел + текст для поиска торрент ссылок' чтобы получить 10 самых популярных результатов поиска"
 		replyMessage.reply()
 	default:
 		replyMessage.Text = restResponse.Message.Chat.FirstName + ", " + "чет я не пойму, ты быканул(а) сейчас?"
