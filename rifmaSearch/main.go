@@ -20,6 +20,7 @@ func main() {
 }
 
 func GetRifma(w http.ResponseWriter, r *http.Request) {
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println("body read all err", err)
