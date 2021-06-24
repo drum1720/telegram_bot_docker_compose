@@ -11,7 +11,6 @@ import (
 type TaskImageHandler struct {
 	Task     string `json:"task"`
 	ChatId   int    `json:"chat_id"`
-	BotUrl   string `json:"botUrl"`
 	FileId   string `json:"file_id"`
 	FilePath string `json:"file_path"`
 }

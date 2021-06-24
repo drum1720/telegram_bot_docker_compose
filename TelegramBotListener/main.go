@@ -12,11 +12,9 @@ import (
 func main() {
 	var settings Settings
 	settings.updateData()
-	botUrl := settings.BotUrl
 	offset := 0
 	for {
-
-		resp, err := http.Get(botUrl + "/getUpdates" + "?offset=" + strconv.Itoa(offset))
+		resp, err := http.Get(settings.BotUrl + "/getUpdates" + "?offset=" + strconv.Itoa(offset))
 		if err != nil {
 			fmt.Println("нет связи с апи телеграмм")
 			continue
@@ -30,7 +28,7 @@ func main() {
 		if err != nil {
 		}
 		for i := 0; i < len(restResponse.Result); i++ {
-			workDirector(restResponse.Result[i], botUrl)
+			workDirector(restResponse.Result[i], settings.BotUrl)
 			offset = restResponse.Result[i].UpdateId + 1
 		}
 	}
@@ -64,7 +62,6 @@ func workDirector(restResponse Update, botUrl string) {
 		task := TaskImageHandler{
 			ChatId:   restResponse.Message.Chat.ChatId,
 			Task:     text,
-			BotUrl:   botUrl,
 			FileId:   restResponse.Message.Photos[len(restResponse.Message.Photos)-1].FileId,
 			FilePath: restResponse.Message.Photos[len(restResponse.Message.Photos)-1].FilePath,
 		}
