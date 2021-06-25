@@ -38,6 +38,10 @@ func Resize(w http.ResponseWriter, r *http.Request) {
 	telegramReplyMessage.ChatId = taskImageHandler.ChatId
 
 	size, quality := ExtractSizeAndQualityFromTask(taskImageHandler.Task, taskImageHandler.ChatId)
+	if size == 0 {
+		return
+	}
+
 	modifiedImage, err := DownloadAndResizeImage(taskImageHandler, size, quality)
 	if err != nil {
 		log.Println(err)
@@ -97,7 +101,7 @@ func DownloadAndResizeImage(taskImageHandler TaskImageHandler, size int, quality
 
 	out, err := os.Create(resizeImageFullName)
 	if err != nil {
-		return "", err //если не получилось создать файл, возвращаем ошибку
+		return "", err
 	}
 	defer out.Close()
 
