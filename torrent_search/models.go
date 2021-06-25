@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -55,17 +56,25 @@ func StructsToString(StructsStrings []StructsString) string {
 	return result
 }
 
-func (reply ReplyMessage) reply() {
+func (taskStruct *TaskImageHandler) Unmarshal(requestBody []byte) {
+	err := json.Unmarshal(requestBody, &taskStruct)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func (reply *TelegramReplyMessage) reply(textMessage string) {
 	var settings Settings
 	settings.updateData()
+	reply.Text = textMessage
 	buf, err := json.Marshal(reply)
 	if err != nil {
 		fmt.Println(err)
 	}
-	v, err := http.Post(settings.BotUrl+"/sendMessage", "application/json", bytes.NewBuffer(buf))
-	fmt.Println(v)
+	_, err = http.Post(settings.BotUrl+"/sendMessage", "application/json", bytes.NewBuffer(buf))
 	if err != nil {
-		fmt.Println(err, "message not send")
+		fmt.Println(err, "не удалось отправить сообщение")
 	}
 }
 

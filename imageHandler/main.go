@@ -6,7 +6,6 @@ import (
 	"github.com/nfnt/resize"
 	"image/jpeg"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -27,14 +26,8 @@ func main() {
 }
 
 func Resize(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
 	var taskImageHandler TaskImageHandler
-	taskImageHandler.Unmarshal(body)
+	taskImageHandler.UnmarshalBodyJson(r)
 	telegramReplyMessage.ChatId = taskImageHandler.ChatId
 
 	size, quality := ExtractSizeAndQualityFromTask(taskImageHandler.Task, taskImageHandler.ChatId)

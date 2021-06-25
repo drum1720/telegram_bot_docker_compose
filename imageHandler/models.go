@@ -28,8 +28,13 @@ type TaskImageHandler struct {
 	FilePath string `json:"file_path"`
 }
 
-func (taskStruct *TaskImageHandler) Unmarshal(requestBody []byte) {
-	err := json.Unmarshal(requestBody, &taskStruct)
+func (taskStruct *TaskImageHandler) UnmarshalBodyJson(r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = json.Unmarshal(body, &taskStruct)
 	if err != nil {
 		log.Println(err)
 		return

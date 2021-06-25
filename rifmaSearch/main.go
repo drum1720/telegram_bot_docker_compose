@@ -1,13 +1,15 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 )
+
+var telegramReplyMessage TelegramReplyMessage
 
 func main() {
 	var settings Settings
@@ -20,29 +22,19 @@ func main() {
 }
 
 func GetRifma(w http.ResponseWriter, r *http.Request) {
-
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		fmt.Println("body read all err", err)
-		return
-	}
 	var taskRifma TaskRifma
-	err = json.Unmarshal(body, &taskRifma)
-	if err != nil {
-		fmt.Println("Unmarshal BAD", err)
-		return
-	}
-	textSearch := TrimTextSearch(taskRifma.Text, taskRifma.ChatId)
+	taskRifma.UnmarshalBodyJson(r)
+	telegramReplyMessage.ChatId = taskRifma.ChatId
+
+	textSearch := TrimTextSearch(taskRifma.Text)
 	if textSearch == "" {
 		return
 	}
 
 	var db Db
-	err = db.connect()
+	err := db.connect()
 	if err != nil {
-		replyMessage := ReplyMessage{ChatId: taskRifma.ChatId,
-			Text: "База данных сломалась, попробуйте позже"}
-		replyMessage.reply()
+		telegramReplyMessage.reply("База данных сломалась, попробуйте позже")
 		return
 	}
 	var rifma = Rifma{Request: textSearch}
@@ -51,19 +43,14 @@ func GetRifma(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 	if rifma.Rifma != "" {
-		replyMessage := ReplyMessage{ChatId: taskRifma.ChatId,
-			Text: rifma.Rifma}
-		replyMessage.reply()
+		telegramReplyMessage.reply(rifma.Rifma)
 		fmt.Println("db search")
 		return
 	}
 
 	result := parseRifma(textSearch)
-
 	rifma.Rifma = result
-	replyMessage := ReplyMessage{ChatId: taskRifma.ChatId,
-		Text: result}
-	replyMessage.reply()
+	telegramReplyMessage.reply(result)
 	fmt.Println("i parse")
 
 	if rifma.Rifma != "" {
@@ -75,13 +62,15 @@ func GetRifma(w http.ResponseWriter, r *http.Request) {
 func parseRifma(textSearch string) string {
 	req, err := http.Get("https://rifmus.net/rifma/" + textSearch)
 	if err != nil {
-		fmt.Println("http err", err)
+		telegramReplyMessage.reply("Я не смог придумать(")
+		log.Println("http err", err)
 		return ""
 	}
 	defer req.Body.Close()
-
 	bodyHtml, err := ioutil.ReadAll(req.Body)
 	textHtml := string(bodyHtml)
+
+	//да, я идиот, но парсить слова-рифмы мне было интересно именно так
 	resultTrim := strings.Split(textHtml, "<ul class='multicolumn' itemprop='text'>")
 	var resultTrim1 []string
 	for i := 1; i < len(resultTrim); i++ {
@@ -99,16 +88,16 @@ func parseRifma(textSearch string) string {
 	for i := 0; i < len(resultTrim1); i++ {
 		result = result + resultTrim1[i]
 	}
+	//тут извращения заканчиваются
+
 	return result
 }
 
-func TrimTextSearch(Text string, ChatId int) string {
-	textSearchs := strings.Split(Text, " ")
-	if len(textSearchs) < 2 {
-		replyMessage := ReplyMessage{ChatId: ChatId,
-			Text: "Не вижу слова я, для нахожденья рифмы, и я не слеп, да и глаза мои открыты..."}
-		replyMessage.reply()
+func TrimTextSearch(Text string) string {
+	KeywordsToSearch := strings.Split(Text, " ")
+	if len(KeywordsToSearch) < 2 {
+		telegramReplyMessage.reply("Не вижу слова я, для нахожденья рифмы, и я не слеп, да и глаза мои открыты...")
 		return ""
 	}
-	return textSearchs[1]
+	return KeywordsToSearch[1]
 }

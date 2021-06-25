@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -26,21 +27,38 @@ type TaskRifma struct {
 	BotUrl string `json:"botUrl"`
 }
 
-type ReplyMessage struct {
+type TelegramReplyMessage struct {
 	ChatId int    `json:"chat_id"`
 	Text   string `json:"text"`
 }
 
-func (reply ReplyMessage) reply() {
+func (taskStruct *TaskRifma) UnmarshalBodyJson(r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = json.Unmarshal(body, &taskStruct)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func (reply *TelegramReplyMessage) reply(textMessage string) {
 	var settings Settings
 	settings.updateData()
+
+	reply.Text = textMessage
 	buf, err := json.Marshal(reply)
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	_, err = http.Post(settings.BotUrl+"/sendMessage", "application/json", bytes.NewBuffer(buf))
 	if err != nil {
-		fmt.Println(err, "message not send")
+		fmt.Println(err, "не удалось отправить сообщение")
 	}
 }
 

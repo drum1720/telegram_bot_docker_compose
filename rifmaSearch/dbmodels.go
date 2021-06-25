@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
 )
 
 type Db struct {
@@ -12,12 +13,6 @@ type Db struct {
 
 type Rifma struct {
 	Request string `gorm:"primaryKey; unique"`
-	Rifma   string
-}
-
-type Hui struct {
-	Id      int
-	Request string
 	Rifma   string
 }
 
@@ -32,9 +27,9 @@ func (db *Db) connect() error {
 	}
 	if !db.Db.Migrator().HasTable(&Rifma{}) {
 		db.Db.Migrator().CreateTable(&Rifma{})
-		fmt.Println("create table")
-	}else{
-		fmt.Println("table is done")
+		log.Println("create table")
+	} else {
+		log.Println("table is done")
 	}
 	return err
 }

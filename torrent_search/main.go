@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+var telegramReplyMessage TelegramReplyMessage
+
 func main() {
 	var settings Settings
 	settings.updateData()
