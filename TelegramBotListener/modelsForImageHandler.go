@@ -3,8 +3,8 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -24,10 +24,10 @@ type PhotoResult struct {
 	Photo Photo `json:"result"`
 }
 
-func (t TaskImageHandler) sendTask() {
+func (task TaskImageHandler) sendTask() {
 	var settings Settings
 	settings.updateData()
-	buf, err := json.Marshal(t)
+	buf, err := json.Marshal(task)
 	if err != nil {
 	}
 	_, err = http.Post(settings.ImageHandlerResizeUrl, "application/json", bytes.NewBuffer(buf))
@@ -38,18 +38,31 @@ func (t TaskImageHandler) sendTask() {
 func (p *Photo) GetFileResult() {
 	var photoResult PhotoResult
 	var settings Settings
+
 	settings.updateData()
 	buf, err := json.Marshal(p)
 	if err != nil {
+		log.Println(err)
+		return
 	}
-	fmt.Println(settings.BotUrl + "/getFile")
+
 	resp, err := http.Post(settings.BotUrl+"/getFile", "application/json", bytes.NewBuffer(buf))
 	if err != nil {
+		log.Println(err)
+		return
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		log.Println(err)
+		return
 	}
+
 	err = json.Unmarshal(body, &photoResult)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	p.FilePath = "https://api.telegram.org/file/bot" + settings.BotToken + "/" + photoResult.Photo.FilePath
 }

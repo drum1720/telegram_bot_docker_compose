@@ -46,7 +46,7 @@ type Update struct {
 	Message  Message `json:"message"`
 }
 
-type ReplyMessage struct {
+type TelegramReplyMessage struct {
 	ChatId int    `json:"chat_id"`
 	Text   string `json:"text"`
 }
