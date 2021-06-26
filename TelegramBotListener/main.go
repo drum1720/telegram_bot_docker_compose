@@ -78,7 +78,7 @@ func workDirector(restResponse Update, botUrl string) {
 		task := TaskTorSearch{
 			ChatId: restResponse.Message.Chat.ChatId,
 			Text:   restResponse.Message.Text,
-			BotUrl: botUrl}
+		}
 		task.sendTask()
 	case "help":
 		replyMessage.Text = "напишите: 'photo + пробел + текст для поиска фото' для того чтобы получить рандомную фотографию по запросу " +

@@ -9,7 +9,6 @@ import (
 type TaskTorSearch struct {
 	ChatId int    `json:"chat_id"`
 	Text   string `json:"text"`
-	BotUrl string `json:"botUrl"`
 }
 
 func (t TaskTorSearch) sendTask() {
