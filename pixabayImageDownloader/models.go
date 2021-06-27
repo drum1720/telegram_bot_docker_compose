@@ -3,15 +3,15 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
 type Settings struct {
-	BotToken   string  `json:"bot_token"`
-	BotApi     string  `json:"bot_api"`
-	BotUrl     string
+	BotToken      string `json:"bot_token"`
+	BotApi        string `json:"bot_api"`
+	BotUrl        string
 	PixabayApiKey string `json:"pixabay_api_key"`
 	PixabayParams string `json:"pixabay_params"`
 	ServerPort    string `json:"server_port"`
@@ -31,21 +31,35 @@ type PixabayHit struct {
 	LargeImageURL string `json:"largeImageURL"`
 }
 
-type ReplyMessage struct {
+type TelegramReplyMessage struct {
 	ChatId int    `json:"chat_id"`
 	Text   string `json:"text"`
 }
 
-func (reply ReplyMessage) reply() {
+func (taskStruct *TaskPhotoDownloader) UnmarshalBodyJson(r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = json.Unmarshal(body, &taskStruct)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func (reply *TelegramReplyMessage) reply(textMessage string) {
 	var settings Settings
 	settings.updateData()
+	reply.Text = textMessage
 	buf, err := json.Marshal(reply)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	_, err = http.Post(settings.BotUrl+"/sendMessage", "application/json", bytes.NewBuffer(buf))
 	if err != nil {
-		fmt.Println(err, "не удалось отправить сообщение")
+		log.Println(err, "не удалось отправить сообщение")
 	}
 }
 
@@ -58,5 +72,5 @@ func (s *Settings) updateData() {
 	if err != nil {
 		panic("Файл настроек не читается")
 	}
-	s.BotUrl=s.BotApi+s.BotToken
+	s.BotUrl = s.BotApi + s.BotToken
 }

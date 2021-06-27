@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -29,44 +30,11 @@ type TorSearchResult struct {
 	Seed           string
 	Size           string
 }
-type ReplyMessage struct {
+
+type TelegramReplyMessage struct {
 	ChatId                int    `json:"chat_id"`
 	Text                  string `json:"text"`
 	DisableWebPagePreview bool   `json:"disable_web_page_preview"`
-}
-
-func (tsr TorSearchResult) ToString() string {
-	if tsr.Url != "" {
-		newLine := "\n"
-		return tsr.Url + newLine + tsr.Name + newLine + tsr.TorTrackerName + newLine + "Size: " + tsr.Size + newLine + "Seeds: " + tsr.Seed + newLine
-	}
-	return ""
-}
-
-type StructsString interface {
-	ToString() string
-}
-
-func StructsToString(StructsStrings []StructsString) string {
-	var result string
-	for i := 0; i < len(StructsStrings); i++ {
-		result = result + StructsStrings[i].ToString() + "\n"
-	}
-	return result
-}
-
-func (reply ReplyMessage) reply() {
-	var settings Settings
-	settings.updateData()
-	buf, err := json.Marshal(reply)
-	if err != nil {
-		fmt.Println(err)
-	}
-	v, err := http.Post(settings.BotUrl+"/sendMessage", "application/json", bytes.NewBuffer(buf))
-	fmt.Println(v)
-	if err != nil {
-		fmt.Println(err, "message not send")
-	}
 }
 
 func (s *Settings) updateData() {
@@ -78,5 +46,51 @@ func (s *Settings) updateData() {
 	if err != nil {
 		panic("Файл настроек не читается")
 	}
+
 	s.BotUrl = s.BotApi + s.BotToken
+}
+
+func (taskStruct *TaskTorSearch) UnmarshalBodyJson(r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = json.Unmarshal(body, &taskStruct)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func (tsr TorSearchResult) ToString() string {
+	if tsr.Url != "" {
+		newLine := "\n"
+		return tsr.Url + newLine + tsr.Name + newLine + tsr.TorTrackerName + newLine + "Size: " + tsr.Size + newLine + "Seeds: " + tsr.Seed + newLine
+	}
+	return ""
+}
+
+func TorStructsToString(StructsStrings []TorSearchResult) string {
+	var result string
+	for i := 0; i < len(StructsStrings); i++ {
+		result = result + StructsStrings[i].ToString() + "\n"
+	}
+	return result
+}
+
+func (reply *TelegramReplyMessage) reply(textMessage string) {
+	var settings Settings
+	settings.updateData()
+
+	reply.Text = textMessage
+	buf, err := json.Marshal(reply)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	_, err = http.Post(settings.BotUrl+"/sendMessage", "application/json", bytes.NewBuffer(buf))
+	if err != nil {
+		fmt.Println(err, "не удалось отправить сообщение")
+	}
 }

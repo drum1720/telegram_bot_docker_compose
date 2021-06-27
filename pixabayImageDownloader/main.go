@@ -2,106 +2,103 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
 	"strings"
 	"time"
 )
 
+var telegramReplyMessage TelegramReplyMessage
+var settings Settings
+
 func main() {
-	var settings Settings
 	settings.updateData()
 	router := mux.NewRouter() //объявление переадресации
-	router.HandleFunc("/api/getPhoto", DownloadPhoto)
+	router.HandleFunc("/api/getPhoto", getPhoto)
 	http.Handle("/", router)
-	fmt.Println("Server is listening...")
 	http.ListenAndServe(settings.ServerPort, nil) //запуск сервера
 }
 
-func DownloadPhoto(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, err.Error(), 400)
+func getPhoto(w http.ResponseWriter, r *http.Request) {
+	var taskPhotoDownloader TaskPhotoDownloader
+	taskPhotoDownloader.UnmarshalBodyJson(r)
+	telegramReplyMessage.ChatId = taskPhotoDownloader.ChatId
+
+	textForSearch := prepareTextSearch(taskPhotoDownloader.Text)
+	if textForSearch == "" {
 		return
 	}
-	var taskPhoto TaskPhotoDownloader
-	err = json.Unmarshal(body, &taskPhoto)
-	if err != nil {
-		http.Error(w, err.Error(), 400)
-		return
-	}
-	textSearch := TrimTextSearch(taskPhoto.Text, taskPhoto.ChatId)
-	if textSearch == "" {
-		return
-	}
-	hit, err := getPixabayHit(textSearch)
+
+	hit, err := getRandomPixabayHit(textForSearch)
 	if hit.LargeImageURL == "" || err != nil {
-		replyMessage := ReplyMessage{ChatId: taskPhoto.ChatId,
-			Text: "Я пока умею искать только на обном сайте с картинками, и там, к сожалению такого нет((("}
-		replyMessage.reply()
-		return
+		telegramReplyMessage.reply("Я пока умею искать только на обном сайте с картинками, и там, к сожалению такого нет(((")
 	}
-	replyMessage := ReplyMessage{ChatId: taskPhoto.ChatId,
-		Text: hit.LargeImageURL}
-	replyMessage.reply()
+
+	telegramReplyMessage.reply(hit.LargeImageURL)
 }
 
-func getPixabayHit(textSearch string) (PixabayHit, error) {
-	var settings Settings
+func getRandomPixabayHit(textForSearch string) (PixabayHit, error) {
 	settings.updateData()
-	resp, err := http.Get("https://pixabay.com/api/?key=" + settings.PixabayApiKey + "&q=" + textSearch + settings.PixabayParams)
+
+	resp, err := http.Get("https://pixabay.com/api/?key=" + settings.PixabayApiKey + "&q=" + textForSearch + settings.PixabayParams)
 	if err != nil {
 		return PixabayHit{}, err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err, "данные не читаются")
+		log.Println(err, "данные не читаются")
 		return PixabayHit{}, err
 	}
-	var pixabayResponse PixabayResponse //структура для ответа от апи сервиса картинок
+	var pixabayResponse PixabayResponse
 	err = json.Unmarshal(body, &pixabayResponse)
 	if err != nil {
-		fmt.Println(err, "JSON данные не читаются")
+		log.Println(err, "JSON данные не читаются")
 		return PixabayHit{}, err
 	}
+
 	if len(pixabayResponse.Hits) < 1 {
 		return PixabayHit{}, err
 	}
 	if len(pixabayResponse.Hits) == 1 {
-		return pixabayResponse.Hits[0], err
+		return pixabayResponse.Hits[0], nil
 	}
-	rand.Seed(time.Now().UnixNano())
-	index := rand.Intn(len(pixabayResponse.Hits) - 1)
-	if index < 1 {
-		for ; ; {
-			index = rand.Intn(len(pixabayResponse.Hits) - 1)
-			if index > 1 {
-				break
-			}
-		}
-	}
-	return pixabayResponse.Hits[index], err
+
+	randIndex := getRandIndex(pixabayResponse.Hits)
+	return pixabayResponse.Hits[randIndex], err
 }
 
-func TrimTextSearch(Text string, ChatId int) string {
-	textSearchs := strings.Split(Text, " ")
-	if len(textSearchs) < 2 {
-		replyMessage := ReplyMessage{ChatId: ChatId,
-			Text: "Как же я буду искать без текста для запроса...Заявка отклонена, возвращайтесь, как поймете что искать"}
-		replyMessage.reply()
+func prepareTextSearch(Text string) string {
+	maxLenTextSearch := 100
+	KeywordsToSearch := strings.Split(Text, " ")
+	if len(KeywordsToSearch) < 2 {
+		telegramReplyMessage.reply("Как же я буду искать без текста для запроса...Заявка отклонена, возвращайтесь, как поймете что искать")
 		return ""
 	}
-	textSearch := textSearchs[1]
-	for i := 2; i < len(textSearchs); i++ {
-		if len(textSearch)+len(textSearchs[i]) < 100 {
-			textSearch = textSearch + "+" + textSearchs[i]
+	textForSearch := KeywordsToSearch[1]
+	for i := 2; i < len(KeywordsToSearch); i++ {
+		if len(textForSearch)+len(KeywordsToSearch[i]) < maxLenTextSearch {
+			textForSearch = textForSearch + "+" + KeywordsToSearch[i]
 			continue
 		}
 		break
 	}
-	return textSearch
+	return textForSearch
+}
+
+func getRandIndex(hits []PixabayHit) int {
+	rand.Seed(time.Now().UnixNano())
+	randIndex := rand.Intn(len(hits) - 1)
+	if randIndex < 1 {
+		for {
+			randIndex = rand.Intn(len(hits) - 1)
+			if randIndex > 1 {
+				break
+			}
+		}
+	}
+	return randIndex
 }
