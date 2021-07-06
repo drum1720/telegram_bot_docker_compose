@@ -78,7 +78,7 @@ func workDirector(restResponse Update, botUrl string) {
 			Text:   restResponse.Message.Text,
 			BotUrl: botUrl}
 		task.sendTask()
-	case "тор":
+	case "tor":
 		task := TaskTorSearch{
 			ChatId: restResponse.Message.Chat.ChatId,
 			Text:   restResponse.Message.Text,
@@ -89,7 +89,7 @@ func workDirector(restResponse Update, botUrl string) {
 			"\n" + "\n" + "Чтобы уменьшить изображение, прикрепите его к сообщению: 'resize + пробел + 1000 + 88', где первый параметр - размер по большей стороне, второй - степень сжатия(от 1 до 100), " +
 			"второй параметр необязательный" +
 			"\n" + "\n" + "Напишите: 'рифма + пробел + слово для поиска рифмы', чтобы получить все возможные рифмы к слову" +
-			"\n" + "\n" + "Напишите: 'тор + пробел + текст для поиска торрент ссылок', чтобы получить 10 самых популярных результатов поиска")
+			"\n" + "\n" + "Напишите: 'tor + пробел + текст для поиска торрент ссылок', чтобы получить 10 самых популярных результатов поиска")
 	default:
 		telegramReplyMessage.reply(restResponse.Message.Chat.FirstName + ", " + " я не пойму, ты быканул(а) сейчас?")
 	}
