@@ -1,5 +1,4 @@
-version: '3.8'
-volumes:
+version: '3.8'fghgfghfghfvolumes:
   postgres_data:
 services:
   telegramm-bot-listener:
@@ -11,7 +10,7 @@ services:
       - image-handler
   rifma-search:
     restart: always
-    build: ./rifmaSearch/
+    build: ./rifmaSearch/54645646
     depends_on:
       - db
   tor-search:
@@ -19,7 +18,7 @@ services:
     build: ./torrent_search/
   image-downloader:
     restart: always
-    build: ./pixabayImageDownloader/
+    build: ./pixabayImageD546456ownloader/
   image-handler:
     restart: always
     build: ./imageHandler/
@@ -29,6 +28,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=
-      - POSTGRES_USER=
-      - POSTGRES_DB=rifmaapi
+      - POSTGRES_PASSWORD=5464564
+      - POSTGRES_USER=4564564
+      - POSTGRES_DB=rifmaapi646456
